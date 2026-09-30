@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glaze &amp; Kiln – Handmade Ceramics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EEF1;--ink:#14202B;--muted:#5A6B78;--cobalt:#2E5AAC;--sage:#9DBFAF;--ochre:#D9A441;--card:#fff;--line:#CBD5DC}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Bricolage Grotesque',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+header{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,48px)}
+.logo{font-weight:800;font-size:1.3rem;letter-spacing:-.02em}
+.cart-btn{background:var(--ochre);color:var(--ink);border:0;border-radius:99px;padding:8px 18px;font-weight:600}
+.hero{padding:clamp(40px,8vw,96px) clamp(16px,4vw,48px);display:grid;gap:24px;grid-template-columns:1.2fr 1fr;align-items:center;background:var(--cobalt);color:#fff}
+.hero h1{font-size:clamp(2.4rem,7vw,5.5rem);line-height:.95;letter-spacing:-.04em;font-weight:800}
+.hero p{max-width:42ch;margin:18px 0 26px;opacity:.9}
+.hero a{display:inline-block;background:#fff;color:var(--ink);padding:12px 26px;border-radius:99px;font-weight:600;text-decoration:none}
+.hero svg{width:100%;max-width:340px;justify-self:center;color:var(--sage)}
+main{padding:32px clamp(16px,4vw,48px) 64px;max-width:1280px;margin:auto}
+.tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:24px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.chip{border:1.5px solid var(--ink);background:transparent;border-radius:99px;padding:6px 16px}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.tools input,.tools select{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
+.card{background:var(--card);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.art{aspect-ratio:1;display:grid;place-items:center}
+.art svg{width:58%}
+.info{padding:14px 16px 18px;display:flex;flex-direction:column;gap:4px;flex:1}
+.info h3{font-size:1.05rem}
+.info small{color:var(--muted)}
+.buy{margin-top:auto;padding-top:12px;display:flex;justify-content:space-between;align-items:center}
+.price{font-weight:800;font-size:1.15rem}
+.add{background:var(--ink);color:#fff;border:0;border-radius:99px;padding:7px 16px}
+.add:hover{background:var(--cobalt)}
+.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(20,32,43,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.overlay.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:#fff;z-index:30;transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer header{position:static;background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
+.close{background:none;border:0;font-size:1.6rem;line-height:1}
+.items{flex:1;overflow:auto;padding:8px 20px}
+.row{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.row .thumb{width:56px;height:56px;border-radius:8px;display:grid;place-items:center}
+.row .thumb svg{width:60%}
+.qty{display:flex;align-items:center;gap:8px;margin-top:4px}
+.qty button{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);background:none}
+.rm{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:.85rem}
+.foot{padding:20px;border-top:1px solid var(--line)}
+.sum{display:flex;justify-content:space-between;font-weight:800;font-size:1.2rem;margin-bottom:14px}
+.primary{width:100%;background:var(--cobalt);color:#fff;border:0;border-radius:12px;padding:13px;font-weight:600}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,92vw);max-height:92vh;overflow:auto;background:#fff;border-radius:16px;padding:26px;z-index:40;display:none}
+.modal.on{display:block}
+.modal h2{margin-bottom:14px}
+.field{display:block;margin-bottom:12px;font-size:.9rem}
+.field input{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px}
+.field input.bad{border-color:#C0392B}
+.err{color:#C0392B;font-size:.8rem;min-height:1em}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:99px;z-index:50;transition:transform .25s}
+.toast.on{transform:translate(-50%,0)}
+footer{text-align:center;padding:28px;color:var(--muted);font-size:.9rem}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.hero svg{max-width:200px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mug" viewBox="0 0 100 100"><path fill="currentColor" d="M18 26h50v44a14 14 0 0 1-14 14H32a14 14 0 0 1-14-14zM68 36h8a12 12 0 0 1 0 28h-8v-7h8a5 5 0 0 0 0-14h-8z"/></symbol>
+  <symbol id="bowl" viewBox="0 0 100 100"><path fill="currentColor" d="M8 40h84a42 42 0 0 1-84 0zM32 88h36v6H32z"/></symbol>
+  <symbol id="vase" viewBox="0 0 100 100"><path fill="currentColor" d="M38 8h24v6l-5 14c22 8 27 28 21 46-3 9-9 14-16 14H38c-7 0-13-5-16-14-6-18-1-38 21-46l-5-14z"/></symbol>
+  <symbol id="plate" viewBox="0 0 100 100"><ellipse cx="50" cy="56" rx="46" ry="20" fill="currentColor"/><ellipse cx="50" cy="54" rx="30" ry="11" fill="#fff" opacity=".35"/></symbol>
+</svg>
+
+<header>
+  <span class="logo">Glaze &amp; Kiln</span>
+  <button class="cart-btn" id="openCart" aria-label="Open cart">Cart (<span id="count">0</span>)</button>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Made on a wheel. Fired for daily use.</h1>
+    <p>Small-batch mugs, bowls, vases and plates, thrown by hand and glazed in colours you can't get from a factory.</p>
+    <a href="#shop">Shop the collection</a>
+  </div>
+  <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#vase"/></svg>
+</section>
+
+<main id="shop">
+  <div class="tools">
+    <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+    <input type="search" id="search" placeholder="Search products" aria-label="Search products">
+    <select id="sort" aria-label="Sort products">
+      <option value="feat">Featured</option>
+      <option value="low">Price: low to high</option>
+      <option value="high">Price: high to low</option>
+      <option value="name">Name A–Z</option>
+    </select>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>© 2026 Glaze &amp; Kiln · Free shipping over ₹3,000</footer>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="Shopping cart">
+  <header><strong>Your cart</strong><button class="close" id="closeCart" aria-label="Close cart">&times;</button></header>
+  <div class="items" id="items"></div>
+  <div class="foot">
+    <div class="sum"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+    <button class="primary" id="checkout">Checkout</button>
+  </div>
+</aside>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const PRODUCTS = [
+  {id:1,name:"Cobalt Morning Mug",cat:"Mugs",price:850,shape:"mug",bg:"#2E5AAC",fg:"#E9EEF1",desc:"350 ml, speckled cobalt glaze"},
+  {id:2,name:"Sage Tea Mug",cat:"Mugs",price:790,shape:"mug",bg:"#9DBFAF",fg:"#14202B",desc:"280 ml, matte celadon"},
+  {id:3,name:"Ochre Espresso Cup",cat:"Mugs",price:620,shape:"mug",bg:"#D9A441",fg:"#14202B",desc:"90 ml, honey-gloss finish"},
+  {id:4,name:"Everyday Ramen Bowl",cat:"Bowls",price:1150,shape:"bowl",bg:"#14202B",fg:"#9DBFAF",desc:"900 ml, deep and wide"},
+  {id:5,name:"Cereal Bowl, Set of 2",cat:"Bowls",price:1650,shape:"bowl",bg:"#9DBFAF",fg:"#2E5AAC",desc:"500 ml each, stackable"},
+  {id:6,name:"Serving Bowl",cat:"Bowls",price:2400,shape:"bowl",bg:"#2E5AAC",fg:"#D9A441",desc:"2 L, glossy inside"},
+  {id:7,name:"Tall Bud Vase",cat:"Vases",price:1400,shape:"vase",bg:"#D9A441",fg:"#2E5AAC",desc:"18 cm, holds single stems"},
+  {id:8,name:"Round Table Vase",cat:"Vases",price:2900,shape:"vase",bg:"#E0E6EA",fg:"#14202B",desc:"26 cm, waterproof inside"},
+  {id:9,name:"Moon Jar",cat:"Vases",price:4200,shape:"vase",bg:"#14202B",fg:"#E9EEF1",desc:"32 cm, statement piece"},
+  {id:10,name:"Dinner Plate, Set of 4",cat:"Plates",price:3600,shape:"plate",bg:"#E0E6EA",fg:"#2E5AAC",desc:"27 cm, dishwasher safe"},
+  {id:11,name:"Side Plate, Set of 4",cat:"Plates",price:2600,shape:"plate",bg:"#2E5AAC",fg:"#9DBFAF",desc:"20 cm, oven safe"},
+  {id:12,name:"Serving Platter",cat:"Plates",price:2100,shape:"plate",bg:"#9DBFAF",fg:"#14202B",desc:"38 cm, wide rim"}
+];
+
+const $ = id => document.getElementById(id);
+const money = n => "₹" + n.toLocaleString("en-IN");
+const state = {cat:"All", q:"", sort:"feat", cart:[]};
+
+// ---- Persistence (safe if storage is blocked) ----
+try { state.cart = JSON.parse(localStorage.getItem("gk-cart")) || []; } catch(e) { state.cart = []; }
+const save = () => { try { localStorage.setItem("gk-cart", JSON.stringify(state.cart)); } catch(e) {} };
+
+// ---- Product grid ----
+function art(p, cls){
+  return `<div class="${cls}" style="background:${p.bg};color:${p.fg}"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${p.shape}"/></svg></div>`;
+}
+function renderChips(){
+  const cats = ["All", ...new Set(PRODUCTS.map(p => p.cat))];
+  $("chips").innerHTML = cats.map(c => `<button class="chip" aria-pressed="${c===state.cat}" data-cat="${c}">${c}</button>`).join("");
+}
+function renderGrid(){
+  let list = PRODUCTS.filter(p => (state.cat==="All" || p.cat===state.cat) && p.name.toLowerCase().includes(state.q.toLowerCase()));
+  if(state.sort==="low") list.sort((a,b)=>a.price-b.price);
+  if(state.sort==="high") list.sort((a,b)=>b.price-a.price);
+  if(state.sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name));
+  $("grid").innerHTML = list.length ? list.map(p => `
+    <article class="card">${art(p,"art")}
+      <div class="info"><h3>${p.name}</h3><small>${p.desc}</small>
+        <div class="buy"><span class="price">${money(p.price)}</span><button class="add" data-add="${p.id}">Add to cart</button></div>
+      </div></article>`).join("")
+    : `<p class="empty">No products match "${state.q.replace(/</g,"&lt;")}". Try a different search or category.</p>`;
+}
+
+// ---- Cart ----
+const total = () => state.cart.reduce((s,i)=>s + PRODUCTS.find(p=>p.id===i.id).price * i.qty, 0);
+function renderCart(){
+  const n = state.cart.reduce((s,i)=>s+i.qty,0);
+  $("count").textContent = n;
+  $("subtotal").textContent = money(total());
+  $("checkout").disabled = !n;
+  $("items").innerHTML = n ? state.cart.map(i => {
+    const p = PRODUCTS.find(x=>x.id===i.id);
+    return `<div class="row">${art(p,"thumb")}
+      <div><strong>${p.name}</strong>
+        <div class="qty"><button data-dec="${p.id}" aria-label="Decrease quantity">−</button><span>${i.qty}</span><button data-inc="${p.id}" aria-label="Increase quantity">+</button></div></div>
+      <div style="text-align:right"><div>${money(p.price*i.qty)}</div><button class="rm" data-rm="${p.id}">Remove</button></div></div>`;
+  }).join("") : `<p class="empty">Your cart is empty. Add a piece from the collection.</p>`;
+  save();
+}
+function change(id, d){
+  const it = state.cart.find(i=>i.id===id);
+  if(!it) return;
+  it.qty += d;
+  if(it.qty <= 0) state.cart = state.cart.filter(i=>i.id!==id);
+  renderCart();
+}
+function addToCart(id){
+  const it = state.cart.find(i=>i.id===id);
+  it ? it.qty++ : state.cart.push({id, qty:1});
+  renderCart();
+  toast("Added to cart");
+}
+
+// ---- UI helpers ----
+function toggleCart(open){
+  $("drawer").classList.toggle("on", open);
+  $("overlay").classList.toggle("on", open);
+}
+let tt;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("on"), 1600);
+}
+function closeModal(){ $("modal").classList.remove("on"); if(!$("drawer").classList.contains("on")) $("overlay").classList.remove("on"); }
+
+// ---- Checkout ----
+function openCheckout(){
+  toggleCart(false);
+  $("overlay").classList.add("on");
+  $("modal").innerHTML = `
+    <h2 id="mTitle">Checkout</h2>
+    <form id="form" novalidate>
+      <label class="field">Full name<input name="name" autocomplete="name"><span class="err"></span></label>
+      <label class="field">Email<input name="email" type="email" autocomplete="email"><span class="err"></span></label>
+      <label class="field">Delivery address<input name="addr" autocomplete="street-address"><span class="err"></span></label>
+      <div class="two">
+        <label class="field">PIN code<input name="pin" inputmode="numeric" maxlength="6" autocomplete="postal-code"><span class="err"></span></label>
+        <label class="field">Phone<input name="phone" inputmode="tel" maxlength="10" autocomplete="tel"><span class="err"></span></label>
+      </div>
+      <div class="sum"><span>Total</span><span>${money(total())}</span></div>
+      <button class="primary" type="submit">Place order</button>
+      <button type="button" class="rm" id="cancel" style="margin-top:10px">Back to shopping</button>
+    </form>`;
+  $("modal").classList.add("on");
+  $("cancel").onclick = closeModal;
+  $("form").onsubmit = submitOrder;
+}
+function submitOrder(e){
+  e.preventDefault();
+  const f = e.target, v = n => f[n].value.trim();
+  const rules = {
+    name:  [v("name").length >= 2, "Enter your full name."],
+    email: [/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v("email")), "Enter a valid email address."],
+    addr:  [v("addr").length >= 8, "Enter your full delivery address."],
+    pin:   [/^\d{6}$/.test(v("pin")), "PIN code must be 6 digits."],
+    phone: [/^\d{10}$/.test(v("phone")), "Phone number must be 10 digits."]
+  };
+  let ok = true;
+  for(const [k,[valid,msg]] of Object.entries(rules)){
+    f[k].classList.toggle("bad", !valid);
+    f[k].nextElementSibling.textContent = valid ? "" : msg;
+    if(!valid) ok = false;
+  }
+  if(!ok) return;
+  const orderId = "GK" + Date.now().toString().slice(-7);
+  const amount = money(total());
+  state.cart = []; renderCart();
+  $("modal").innerHTML = `<h2 id="mTitle">Order placed</h2>
+    <p>Thanks, ${v("name").replace(/</g,"&lt;")}. Order <strong>${orderId}</strong> for ${amount} is confirmed. A receipt is on its way to ${v("email").replace(/</g,"&lt;")}.</p>
+    <button class="primary" id="done" style="margin-top:18px">Continue shopping</button>`;
+  $("done").onclick = closeModal;
+}
+
+// ---- Events ----
+document.addEventListener("click", e => {
+  const t = e.target;
+  if(t.dataset.add) addToCart(+t.dataset.add);
+  if(t.dataset.inc) change(+t.dataset.inc, 1);
+  if(t.dataset.dec) change(+t.dataset.dec, -1);
+  if(t.dataset.rm)  change(+t.dataset.rm, -99);
+  if(t.dataset.cat){ state.cat = t.dataset.cat; renderChips(); renderGrid(); }
+});
+$("openCart").onclick = () => toggleCart(true);
+$("closeCart").onclick = () => toggleCart(false);
+$("overlay").onclick = () => { toggleCart(false); closeModal(); };
+$("checkout").onclick = openCheckout;
+$("search").oninput = e => { state.q = e.target.value; renderGrid(); };
+$("sort").onchange = e => { state.sort = e.target.value; renderGrid(); };
+document.addEventListener("keydown", e => { if(e.key==="Escape"){ toggleCart(false); closeModal(); } });
+
+renderChips(); renderGrid(); renderCart();
+</script>
+</body>
+</html>
